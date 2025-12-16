@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>幸運抽獎工具 </title>
+    <title>幸運抽獎工具</title>
     <!-- 引入彩帶特效庫 -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
@@ -44,6 +44,41 @@
             }
         }
 
+        /* 音樂控制按鈕 */
+        .music-control {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 50px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 2px solid var(--primary);
+            transition: all 0.3s;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        .music-control:hover {
+            transform: scale(1.05);
+            background: #eef2ff;
+        }
+        .music-control.playing {
+            background: var(--primary);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
+        }
+
         /* 卡片樣式 */
         .card {
             background: var(--card-bg);
@@ -60,6 +95,7 @@
             width: 100%;
             text-align: center;
             margin-bottom: 20px;
+            margin-top: 40px; /* 為了避開音樂按鈕 */
         }
 
         #eventTitle {
@@ -238,12 +274,11 @@
             color: #666;
         }
 
-        .big-winner {
-            font-size: 3rem;
+        .rolling-display {
+            font-size: 2.5rem;
             font-weight: bold;
             color: var(--primary);
             min-height: 60px;
-            animation: popIn 0.3s ease-out;
             word-break: break-word;
         }
 
@@ -263,9 +298,14 @@
             text-align: center;
             font-weight: 500;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            animation: slideUp 0.3s ease-out;
+            animation: slideInLeft 0.5s ease-out;
             position: relative;
             overflow: hidden;
+        }
+
+        @keyframes slideInLeft {
+            0% { transform: translateX(-20px); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
         }
 
         .winner-tag::before {
@@ -293,23 +333,106 @@
             justify-content: space-between;
         }
 
-        /* 動畫 */
-        @keyframes popIn {
-            0% { transform: scale(0.5); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        @keyframes slideUp {
-            0% { transform: translateY(20px); opacity: 0; }
-            100% { transform: translateY(0); opacity: 1; }
-        }
-
         .hidden {
             display: none !important;
         }
+
+        /* ====================
+           Spotlight Modal (大獎展示彈窗) 
+           ==================== */
+        .spotlight-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .spotlight-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .spotlight-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 80%;
+            min-width: 300px;
+            border: 8px solid #fbbf24; /* 金邊 */
+            box-shadow: 0 0 50px rgba(251, 191, 36, 0.5);
+            transform: scale(0.5);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .spotlight-overlay.active .spotlight-content {
+            transform: scale(1);
+            animation: zoomBounce 0.6s ease-out;
+        }
+
+        @keyframes zoomBounce {
+            0% { transform: scale(0); opacity: 0; }
+            60% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .spotlight-title {
+            font-size: 2rem;
+            color: #d97706;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .spotlight-names {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1.4;
+        }
+
+        .spotlight-names div {
+            margin: 10px 0;
+        }
+
+        /* 若一次多人中獎，字體自動變小一點 */
+        .spotlight-names.multiple {
+            font-size: 2rem;
+        }
+
     </style>
 </head>
 <body>
+
+    <!-- 背景音樂 -->
+    <!-- 使用 Royalty Free 音樂範例 (Happy Ukulele) -->
+    <audio id="bgMusic" loop>
+        <source src="https://www.bensound.com/bensound-music/bensound-ukulele.mp3" type="audio/mp3">
+        <!-- 備用來源，如果上面的失效 -->
+        您的瀏覽器不支援音樂播放。
+    </audio>
+
+    <div class="music-control" onclick="toggleMusic()" id="btnMusic">
+        <span>🔇</span> 播放音樂
+    </div>
+
+    <!-- 大獎展示彈窗 (Spotlight Modal) -->
+    <div id="spotlightOverlay" class="spotlight-overlay">
+        <div class="spotlight-content">
+            <div class="spotlight-title" id="spotlightPrizeName">🎊 恭喜得獎 🎊</div>
+            <div class="spotlight-names" id="spotlightNameList">
+                <!-- 名字會出現在這 -->
+            </div>
+        </div>
+    </div>
 
     <div class="header">
         <input type="text" id="eventTitle" value="🎉 公司年度幸運大抽獎 🎉" placeholder="點擊編輯活動名稱">
@@ -374,8 +497,8 @@
             <div>
                 <label for="drawMode">3. 抽獎方式</label>
                 <select id="drawMode">
-                    <option value="batch">一次抽出該獎項所有幸運得主</option>
-                    <option value="single">一個一個來慢慢抽 </option>
+                    <option value="batch">一次抽出該獎項所有得主</option>
+                    <option value="single">一個一個慢慢抽 (滾動特效)</option>
                 </select>
             </div>
 
@@ -384,20 +507,20 @@
                 <button class="secondary hidden" onclick="drawNextSingle()" id="btnNext">抽下一位</button>
             </div>
             
-            <button class="danger" onclick="resetData()" style="margin-top: 20px;">重置所有數據 (名單/結果)</button>
+            <button class="danger" onclick="resetData()" style="margin-top: 20px;">重置所有數據</button>
         </div>
 
         <!-- 右側結果區 -->
         <div class="card result-area">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h2>🏆 得獎名單</h2>
+                <h2>🏆 得獎歷史</h2>
                 <button onclick="exportResult()" class="secondary" style="width:auto; padding: 5px 10px; font-size:0.8rem;">複製名單</button>
             </div>
             
-            <!-- 目前正在抽的展示區 -->
+            <!-- 目前正在抽的展示區 (僅用於單抽模式滾動時) -->
             <div id="currentDrawArea" class="current-draw-box hidden">
                 <h3 id="currentPrizeLabel">正在抽出...</h3>
-                <div id="bigWinnerDisplay" class="big-winner">???</div>
+                <div id="bigWinnerDisplay" class="rolling-display">???</div>
                 <div id="remainingInBatch" style="font-size:0.8rem; color:#888; margin-top:5px;"></div>
             </div>
 
@@ -410,27 +533,49 @@
 
     <script>
         // ================= 全局變數 =================
-        let drawnNames = new Set(); // 已中獎名單
-        let prizeQueue = [];        // 待抽獎項清單
+        let drawnNames = new Set();
+        let prizeQueue = [];
         
-        // 單抽模式 (刺激模式) 狀態變數
-        let singleModeQueue = [];   // 當前這一輪要抽出的名單 (已在內部先隨機選好，只是還沒顯示)
+        let singleModeQueue = [];
         let currentSinglePrize = "";
-        let isDrawing = false;      // 動畫是否正在跑
+        let isDrawing = false; // 鎖定狀態
+
+        // 音樂變數
+        const bgAudio = document.getElementById('bgMusic');
+        let isMusicPlaying = false;
 
         // ================= 初始化與監聽 =================
         document.getElementById('names').addEventListener('input', updateStats);
-        
-        // 允許按 Enter 鍵加入獎項
         document.getElementById('inputPrizeCount').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') addPrizeToList();
         });
+
+        // ================= 音樂功能 =================
+        function toggleMusic() {
+            const btn = document.getElementById('btnMusic');
+            if (isMusicPlaying) {
+                bgAudio.pause();
+                btn.innerHTML = '<span>🔇</span> 播放音樂';
+                btn.classList.remove('playing');
+                isMusicPlaying = false;
+            } else {
+                // 用戶互動後才能播放
+                bgAudio.volume = 0.5; // 音量適中
+                bgAudio.play().then(() => {
+                    btn.innerHTML = '<span>🎵</span> 暫停音樂';
+                    btn.classList.add('playing');
+                    isMusicPlaying = true;
+                }).catch(e => {
+                    alert("無法播放音樂，請檢查瀏覽器設定");
+                    console.error(e);
+                });
+            }
+        }
 
         // ================= 核心功能：名單統計 =================
         function getPool() {
             const text = document.getElementById('names').value;
             const allNames = text.split('\n').map(n => n.trim()).filter(n => n);
-            // 回傳尚未中獎的人
             return allNames.filter(n => !drawnNames.has(n));
         }
 
@@ -448,26 +593,16 @@
         function addPrizeToList() {
             const nameInput = document.getElementById('inputPrizeName');
             const countInput = document.getElementById('inputPrizeCount');
-            
             const name = nameInput.value.trim();
             const count = parseInt(countInput.value, 10);
 
-            if (!name) {
-                alert("請輸入獎項名稱");
-                return;
-            }
-            if (count <= 0 || isNaN(count)) {
-                alert("數量必須大於 0");
-                return;
-            }
+            if (!name) return alert("請輸入獎項名稱");
+            if (count <= 0 || isNaN(count)) return alert("數量必須大於 0");
 
             prizeQueue.push({ name: name, count: count });
-            
-            // 清空輸入框
             nameInput.value = "";
             countInput.value = "1";
             nameInput.focus();
-            
             renderPrizeQueue();
         }
 
@@ -497,8 +632,6 @@
                 `;
             });
             container.innerHTML = html;
-
-            // 更新按鈕文字
             const nextPrize = prizeQueue[0];
             document.getElementById('btnStart').innerText = `開始抽：${nextPrize.name} (${nextPrize.count}人)`;
         }
@@ -510,66 +643,57 @@
             let isFromQueue = false;
 
             if (prizeQueue.length > 0) {
-                currentConfig = prizeQueue[0]; // 取出清單第一個
+                currentConfig = prizeQueue[0];
                 isFromQueue = true;
             } else {
-                // 如果清單是空的，允許直接讀取輸入框當作臨時抽獎 (相容舊模式)
                 const manualName = document.getElementById('inputPrizeName').value.trim();
                 const manualCount = parseInt(document.getElementById('inputPrizeCount').value, 10);
                 if(manualName && manualCount > 0) {
                     currentConfig = { name: manualName, count: manualCount };
                 } else {
-                    alert("請先新增獎項到清單，或在輸入框填寫獎項資料！");
-                    return;
+                    return alert("請先新增獎項到清單，或在輸入框填寫獎項資料！");
                 }
             }
 
-            // 2. 檢查人數是否足夠
+            // 2. 檢查人數
             const pool = getPool();
-            if (pool.length === 0) {
-                alert("所有人皆已中獎，無法繼續抽獎！");
-                return;
-            }
-            if (pool.length < currentConfig.count) {
-                alert(`剩餘人數 (${pool.length}) 不足，無法抽出 ${currentConfig.count} 人`);
-                return;
-            }
+            if (pool.length === 0) return alert("所有人皆已中獎！");
+            if (pool.length < currentConfig.count) return alert(`人數不足，無法抽出 ${currentConfig.count} 人`);
 
-            // 3. 鎖定介面
+            // 3. 鎖定
             document.getElementById('btnStart').classList.add('hidden');
             document.getElementById('names').disabled = true;
 
-            // 4. 洗牌算法 (Fisher-Yates) 選出得獎者
+            // 4. 洗牌抽獎
             const shuffled = [...pool];
             for (let i = shuffled.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
             }
-            // 鎖定這次的中獎名單
             const winners = shuffled.slice(0, currentConfig.count);
 
-            // 5. 根據模式執行
+            // 5. 執行
             const mode = document.getElementById('drawMode').value;
             
             if (mode === 'batch') {
-                // --- 批量模式 ---
-                processBatchWinners(winners, currentConfig.name);
-                
-                // 只有成功抽出後，才從隊列移除
+                // --- 批量模式 (直接展示 Spotlight) ---
                 if(isFromQueue) {
                     prizeQueue.shift(); 
                     renderPrizeQueue();
                 }
-                
-                document.getElementById('btnStart').classList.remove('hidden');
-                document.getElementById('names').disabled = false;
+                // 呼叫彈窗展示動畫
+                showSpotlight(winners, currentConfig.name, () => {
+                    // 動畫結束後的回調：加入清單
+                    processBatchWinners(winners, currentConfig.name);
+                    document.getElementById('btnStart').classList.remove('hidden');
+                    document.getElementById('names').disabled = false;
+                });
                 
             } else {
-                // --- 單抽 (刺激) 模式 ---
+                // --- 單抽模式 ---
                 singleModeQueue = winners;
                 currentSinglePrize = currentConfig.name;
                 
-                // 如果是隊列中的，先移除，避免重複按開始又重新讀取
                 if(isFromQueue) {
                     prizeQueue.shift();
                     renderPrizeQueue();
@@ -579,13 +703,45 @@
                 document.getElementById('currentDrawArea').classList.remove('hidden');
                 document.getElementById('currentPrizeLabel').innerText = `正在抽出：${currentSinglePrize}`;
                 document.getElementById('bigWinnerDisplay').innerText = "準備中...";
-                document.getElementById('remainingInBatch').innerText = `本批次共 ${winners.length} 人，剩餘 ${winners.length} 人`;
-                
-                // 讓使用者點擊「抽下一位」才開始
+                document.getElementById('remainingInBatch').innerText = `本批次共 ${winners.length} 人`;
             }
         }
 
-        // 批量處理結果
+        // ================= Spotlight 彈窗動畫邏輯 =================
+        function showSpotlight(winners, prizeName, callback) {
+            const overlay = document.getElementById('spotlightOverlay');
+            const titleEl = document.getElementById('spotlightPrizeName');
+            const namesEl = document.getElementById('spotlightNameList');
+
+            // 設定內容
+            titleEl.innerText = `🎊 ${prizeName} 得主 🎊`;
+            namesEl.innerHTML = winners.map(name => `<div>${name}</div>`).join('');
+            
+            // 調整字體大小 (如果不只一人，字變小)
+            if (winners.length > 1) {
+                namesEl.classList.add('multiple');
+            } else {
+                namesEl.classList.remove('multiple');
+            }
+
+            // 顯示彈窗 (觸發 CSS 動畫)
+            overlay.classList.add('active');
+
+            // 播放歡呼音效? (這裡僅依賴背景音樂，若需特效音可加在這邊)
+
+            // 停留 2.5 秒後關閉並執行 callback
+            setTimeout(() => {
+                overlay.classList.remove('active');
+                // 等待淡出動畫結束再執行 callback
+                setTimeout(() => {
+                    if (callback) callback();
+                }, 300);
+            }, 2500);
+        }
+
+
+        // ================= 批量 & 單抽處理 =================
+
         function processBatchWinners(winners, prizeName) {
             winners.forEach(winner => {
                 addWinnerCard(winner, prizeName);
@@ -595,58 +751,58 @@
             fireConfetti();
         }
 
-        // 單抽模式：抽下一位
         function drawNextSingle() {
             if (singleModeQueue.length === 0) {
                 finishSingleMode();
                 return;
             }
-            if (isDrawing) return; // 防止連點
+            if (isDrawing) return;
 
             isDrawing = true;
             const btnNext = document.getElementById('btnNext');
             btnNext.disabled = true;
             
-            const winner = singleModeQueue.shift(); // 取出下一個
+            const winner = singleModeQueue.shift();
             const display = document.getElementById('bigWinnerDisplay');
 
             // 滾動特效
             let count = 0;
-            const maxCount = 15; // 滾動次數
-            const speed = 50;    // 速度
+            const maxCount = 15;
+            const speed = 50;
 
             const interval = setInterval(() => {
-                // 隨機顯示假名字
-                const tempPool = getPool(); // 這裡取剩餘池的隨機名字來滾動
-                // 如果池子太小，混入一些已中獎的增加視覺隨機性
+                const tempPool = getPool();
                 const displayPool = tempPool.length > 5 ? tempPool : [...tempPool, ...Array.from(drawnNames)];
-                
-                if(displayPool.length > 0) {
-                    display.innerText = displayPool[Math.floor(Math.random() * displayPool.length)];
-                } else {
-                    display.innerText = "???";
-                }
+                display.innerText = displayPool.length > 0 ? displayPool[Math.floor(Math.random() * displayPool.length)] : "???";
                 
                 count++;
                 if (count >= maxCount) {
                     clearInterval(interval);
-                    // === 顯示真正得主 ===
+                    
+                    // 滾動結束，顯示真正得主在小框框 (暫時)
                     display.innerText = winner;
-                    addWinnerCard(winner, currentSinglePrize);
-                    drawnNames.add(winner); // 標記為已中獎
-                    updateStats();
-                    fireConfetti();
-                    
-                    isDrawing = false;
-                    btnNext.disabled = false;
-                    
-                    document.getElementById('remainingInBatch').innerText = `本批次剩餘 ${singleModeQueue.length} 人`;
 
-                    if (singleModeQueue.length === 0) {
-                        btnNext.innerText = "完成本輪";
-                    } else {
-                        btnNext.innerText = `抽下一位`;
-                    }
+                    // === 這裡插入 Spotlight 彈窗 ===
+                    // 延遲一點點讓使用者看到滾動停下
+                    setTimeout(() => {
+                        showSpotlight([winner], currentSinglePrize, () => {
+                            // 彈窗結束後，加入下方清單
+                            addWinnerCard(winner, currentSinglePrize);
+                            drawnNames.add(winner);
+                            updateStats();
+                            fireConfetti();
+                            
+                            isDrawing = false;
+                            btnNext.disabled = false;
+                            document.getElementById('remainingInBatch').innerText = `本批次剩餘 ${singleModeQueue.length} 人`;
+
+                            if (singleModeQueue.length === 0) {
+                                btnNext.innerText = "完成本輪";
+                            } else {
+                                btnNext.innerText = `抽下一位`;
+                            }
+                        });
+                    }, 300);
                 }
             }, speed);
         }
@@ -657,12 +813,10 @@
             document.getElementById('currentDrawArea').classList.add('hidden');
             document.getElementById('btnNext').innerText = "抽下一位";
             document.getElementById('names').disabled = false;
-            
-            // 恢復原始按鈕文字或更新為下一個獎項
             renderPrizeQueue();
         }
 
-        // ================= UI 輔助功能 =================
+        // ================= UI 輔助 =================
         function addWinnerCard(name, prize) {
             const container = document.getElementById('winnerList');
             const card = document.createElement('div');
@@ -671,65 +825,41 @@
                 <span>${prize}</span>
                 <div style="font-size: 1.2rem; font-weight: bold; color: var(--primary);">${name}</div>
             `;
-            // 插入到最前面
             container.insertBefore(card, container.firstChild);
         }
 
         function resetData() {
-            if(!confirm("確定要清除所有得獎紀錄並重置嗎？")) return;
-            
+            if(!confirm("確定要重置嗎？")) return;
             drawnNames.clear();
             document.getElementById('winnerList').innerHTML = '';
             document.getElementById('names').disabled = false;
-            
-            // 重置介面狀態
             document.getElementById('btnStart').classList.remove('hidden');
             document.getElementById('btnNext').classList.add('hidden');
             document.getElementById('currentDrawArea').classList.add('hidden');
-            
-            // 清空獎項隊列 (選擇性，這裡我保留隊列，只重置中獎結果)
-            // prizeQueue = []; 
-            // renderPrizeQueue();
-
             updateStats();
         }
 
         function exportResult() {
             const list = document.querySelectorAll('.winner-tag');
-            if(list.length === 0) {
-                alert("目前沒有得獎資料");
-                return;
-            }
+            if(list.length === 0) return alert("無資料");
             let text = "=== 得獎名單 ===\n";
             list.forEach(item => {
-                const prize = item.querySelector('span').innerText;
-                const name = item.querySelector('div').innerText;
-                text += `${prize} - ${name}\n`;
+                text += `${item.querySelector('span').innerText} - ${item.querySelector('div').innerText}\n`;
             });
-            
-            navigator.clipboard.writeText(text).then(() => {
-                alert("名單已複製到剪貼簿！");
-            });
+            navigator.clipboard.writeText(text).then(() => alert("已複製！"));
         }
 
-        // 彩帶特效
         function fireConfetti() {
             var duration = 2000;
-            var animationEnd = Date.now() + duration;
-            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
-
-            var random = function(min, max) { return Math.random() * (max - min) + min; }
-
-            var interval = setInterval(function() {
-              var timeLeft = animationEnd - Date.now();
-              if (timeLeft <= 0) return clearInterval(interval);
-              var particleCount = 50 * (timeLeft / duration);
-              confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.1, 0.3), y: Math.random() - 0.2 } }));
-              confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.7, 0.9), y: Math.random() - 0.2 } }));
-            }, 250);
+            var end = Date.now() + duration;
+            (function frame() {
+                confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 } });
+                confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 } });
+                if (Date.now() < end) requestAnimationFrame(frame);
+            }());
         }
 
-        // 初始化
+        // Init
         updateStats();
         renderPrizeQueue();
     </script>
