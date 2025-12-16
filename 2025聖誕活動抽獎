@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>幸運大抽獎工具</title>
+    <!-- 引入彩帶特效庫 -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text: #1f2937;
+            --border: #e5e7eb;
+        }
+
+        body {
+            font-family: 'Segoe UI', Microsoft JhengHei, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 卡片樣式 */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* 標題區域 */
+        .header {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #eventTitle {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            border: none;
+            background: transparent;
+            text-align: center;
+            width: 100%;
+            outline: none;
+            border-bottom: 2px dashed transparent;
+            transition: border 0.3s;
+        }
+
+        #eventTitle:focus {
+            border-bottom-color: var(--primary);
+        }
+
+        /* 輸入區域 */
+        label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            resize: vertical;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .control-group > div {
+            flex: 1;
+        }
+
+        /* 按鈕 */
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background 0.2s;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        button.secondary {
+            background-color: #9ca3af;
+        }
+        
+        button.secondary:hover {
+            background-color: #6b7280;
+        }
+
+        button.danger {
+            background-color: #ef4444;
+        }
+
+        button.danger:hover {
+            background-color: #dc2626;
+        }
+
+        /* 抽獎結果區域 */
+        .result-area {
+            min-height: 400px;
+            position: relative;
+        }
+
+        .current-draw-box {
+            text-align: center;
+            padding: 20px;
+            background: #eef2ff;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 2px solid var(--primary);
+        }
+
+        .current-draw-box h3 {
+            margin: 0 0 10px 0;
+            color: #666;
+        }
+
+        .big-winner {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--primary);
+            min-height: 60px;
+            animation: popIn 0.3s ease-out;
+        }
+
+        .history-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .winner-tag {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .winner-tag span {
+            display: block;
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .stats {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #666;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* 動畫 */
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            0% { transform: translateY(20px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <input type="text" id="eventTitle" value="🎉 公司年度幸運大抽獎 🎉" placeholder="點擊編輯活動名稱">
+    </div>
+
+    <div class="container">
+        <!-- 左側設定區 -->
+        <div class="card">
+            <h2>⚙️ 抽獎設定</h2>
+            
+            <div>
+                <label for="names">參與名單 (一行一個名字)</label>
+                <textarea id="names" placeholder="張三&#10;李四&#10;王五&#10;..."></textarea>
+                <div class="stats">
+                    <span id="totalCount">總人數: 0</span>
+                    <span id="poolCount">剩餘人數: 0</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <div>
+                    <label for="prizeName">獎項名稱</label>
+                    <input type="text" id="prizeName" value="特獎">
+                </div>
+                <div>
+                    <label for="prizeCount">抽獎人數</label>
+                    <input type="number" id="prizeCount" value="1" min="1">
+                </div>
+            </div>
+
+            <div>
+                <label for="drawMode">抽獎方式</label>
+                <select id="drawMode">
+                    <option value="batch">一次抽出所有得獎者</option>
+                    <option value="single">一個一個慢慢抽 (刺激模式)</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <button onclick="startDraw()" id="btnStart">開始抽獎</button>
+                <button class="secondary hidden" onclick="drawNext()" id="btnNext">抽下一位</button>
+            </div>
+            
+            <button class="danger" onclick="resetData()" style="margin-top: 10px;">重置所有數據</button>
+        </div>
+
+        <!-- 右側結果區 -->
+        <div class="card result-area">
+            <h2>🏆 得獎名單</h2>
+            
+            <!-- 目前正在抽的展示區 -->
+            <div id="currentDrawArea" class="current-draw-box hidden">
+                <h3 id="currentPrizeLabel">正在抽出...</h3>
+                <div id="bigWinnerDisplay" class="big-winner">???</div>
+            </div>
+
+            <!-- 歷史紀錄 -->
+            <div id="winnerList" class="history-list">
+                <!-- 得獎者卡片會加在這裡 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局變數
+        let namePool = [];
+        let drawnNames = new Set();
+        let isDrawing = false;
+        
+        // 單抽模式變數
+        let singleModeQueue = [];
+        let currentSinglePrize = "";
+
+        // 初始化監聽
+        document.getElementById('names').addEventListener('input', updateStats);
+        
+        function updateStats() {
+            const text = document.getElementById('names').value;
+            // 過濾空行
+            const allNames = text.split('\n').map(n => n.trim()).filter(n => n);
+            
+            // 更新總池 (排除已中獎的)
+            // 如果還沒開始抽，就重置 pool
+            // 這裡為了簡單，每次編輯都視為重置 pool 但保留已中獎名單邏輯比較複雜
+            // 簡單邏輯：從 textarea 讀取所有名字，過濾掉已中獎的，形成目前的 pool
+            
+            const total = allNames.length;
+            
+            // 計算剩餘池
+            // 這裡我們假設 textarea 永遠是完整的名單
+            // 實際抽獎時會檢查是否在 drawnNames 中
+            const remaining = allNames.filter(n => !drawnNames.has(n)).length;
+
+            document.getElementById('totalCount').innerText = `總人數: ${total}`;
+            document.getElementById('poolCount').innerText = `可抽人數: ${remaining}`;
+        }
+
+        function getPool() {
+            const text = document.getElementById('names').value;
+            const allNames = text.split('\n').map(n => n.trim()).filter(n => n);
+            return allNames.filter(n => !drawnNames.has(n));
+        }
+
+        function startDraw() {
+            const pool = getPool();
+            const prizeName = document.getElementById('prizeName').value || "神秘獎項";
+            const countInput = document.getElementById('prizeCount').value;
+            const count = parseInt(countInput, 10);
+            const mode = document.getElementById('drawMode').value;
+
+            if (pool.length === 0) {
+                alert("名單為空或所有人皆已中獎！");
+                return;
+            }
+            if (count <= 0) {
+                alert("抽獎人數必須大於 0");
+                return;
+            }
+            if (pool.length < count) {
+                alert(`剩餘人數 (${pool.length}) 不足，無法抽出 ${count} 人`);
+                return;
+            }
+
+            // 鎖定 UI
+            document.getElementById('btnStart').classList.add('hidden');
+            document.getElementById('names').disabled = true;
+
+            // 洗牌算法 (Fisher-Yates)
+            const shuffled = [...pool];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+
+            const winners = shuffled.slice(0, count);
+
+            if (mode === 'batch') {
+                // 一次全抽模式
+                processBatchWinners(winners, prizeName);
+                document.getElementById('btnStart').classList.remove('hidden');
+                document.getElementById('names').disabled = false;
+            } else {
+                // 一個一個抽模式
+                singleModeQueue = winners;
+                currentSinglePrize = prizeName;
+                document.getElementById('btnNext').classList.remove('hidden');
+                document.getElementById('currentDrawArea').classList.remove('hidden');
+                document.getElementById('currentPrizeLabel').innerText = `正在抽出：${prizeName}`;
+                document.getElementById('bigWinnerDisplay').innerText = "準備中...";
+                
+                // 自動觸發第一次
+                // drawNext(); // 如果想讓用戶自己按第一下，這行註解掉
+            }
+        }
+
+        function processBatchWinners(winners, prizeName) {
+            winners.forEach(winner => {
+                addWinnerCard(winner, prizeName);
+                drawnNames.add(winner);
+            });
+            updateStats();
+            fireConfetti();
+        }
+
+        function drawNext() {
+            if (singleModeQueue.length === 0) {
+                // 結束單抽模式
+                finishSingleMode();
+                return;
+            }
+
+            const btnNext = document.getElementById('btnNext');
+            btnNext.disabled = true; // 防止連點
+            
+            const winner = singleModeQueue.shift(); // 取出下一個
+            const display = document.getElementById('bigWinnerDisplay');
+
+            // 簡單的滾動特效
+            let count = 0;
+            const maxCount = 10; // 滾動次數
+            const interval = setInterval(() => {
+                // 隨機顯示一個假名字製造緊張感
+                const tempPool = getPool();
+                if(tempPool.length > 0) {
+                    display.innerText = tempPool[Math.floor(Math.random() * tempPool.length)];
+                }
+                
+                count++;
+                if (count >= maxCount) {
+                    clearInterval(interval);
+                    // 顯示真正得主
+                    display.innerText = winner;
+                    addWinnerCard(winner, currentSinglePrize);
+                    drawnNames.add(winner);
+                    updateStats();
+                    fireConfetti();
+                    
+                    btnNext.disabled = false;
+                    
+                    if (singleModeQueue.length === 0) {
+                        btnNext.innerText = "完成本輪";
+                    } else {
+                        btnNext.innerText = `抽下一位 (剩餘 ${singleModeQueue.length})`;
+                    }
+                }
+            }, 50);
+        }
+
+        function finishSingleMode() {
+            document.getElementById('btnStart').classList.remove('hidden');
+            document.getElementById('btnNext').classList.add('hidden');
+            document.getElementById('currentDrawArea').classList.add('hidden');
+            document.getElementById('btnNext').innerText = "抽下一位";
+            document.getElementById('names').disabled = false;
+            singleModeQueue = [];
+        }
+
+        function addWinnerCard(name, prize) {
+            const container = document.getElementById('winnerList');
+            const card = document.createElement('div');
+            card.className = 'winner-tag';
+            card.innerHTML = `
+                <span>${prize}</span>
+                <div style="font-size: 1.2rem; font-weight: bold; color: var(--primary);">${name}</div>
+            `;
+            // 插入到最前面
+            container.insertBefore(card, container.firstChild);
+        }
+
+        function resetData() {
+            if(!confirm("確定要清除所有得獎紀錄並重置嗎？")) return;
+            
+            drawnNames.clear();
+            document.getElementById('winnerList').innerHTML = '';
+            document.getElementById('names').disabled = false;
+            document.getElementById('btnStart').classList.remove('hidden');
+            document.getElementById('btnNext').classList.add('hidden');
+            document.getElementById('currentDrawArea').classList.add('hidden');
+            updateStats();
+        }
+
+        function fireConfetti() {
+            var duration = 3000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+            var random = function(min, max) {
+              return Math.random() * (max - min) + min;
+            }
+
+            var interval = setInterval(function() {
+              var timeLeft = animationEnd - Date.now();
+
+              if (timeLeft <= 0) {
+                return clearInterval(interval);
+              }
+
+              var particleCount = 50 * (timeLeft / duration);
+              // since particles fall down, start a bit higher than random
+              confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.1, 0.3), y: Math.random() - 0.2 } }));
+              confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+        }
+
+        // 初始化
+        updateStats();
+    </script>
+</body>
+</html>
