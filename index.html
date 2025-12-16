@@ -498,7 +498,7 @@
                 <label for="drawMode">3. 抽獎方式</label>
                 <select id="drawMode">
                     <option value="batch">一次抽出該獎項所有得主</option>
-                    <option value="single">一個一個慢慢抽 (滾動特效)</option>
+                    <option value="single">一個一個慢慢抽 </option>
                 </select>
             </div>
 
@@ -513,7 +513,7 @@
         <!-- 右側結果區 -->
         <div class="card result-area">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h2>🏆 得獎歷史</h2>
+                <h2>🏆 得獎名單</h2>
                 <button onclick="exportResult()" class="secondary" style="width:auto; padding: 5px 10px; font-size:0.8rem;">複製名單</button>
             </div>
             
@@ -615,7 +615,7 @@
             const container = document.getElementById('prizeQueueContainer');
             if (prizeQueue.length === 0) {
                 container.innerHTML = '<div class="empty-queue">目前沒有待抽獎項，請上方新增</div>';
-                document.getElementById('btnStart').innerText = "開始抽獎 (無排程)";
+                document.getElementById('btnStart').innerText = "獎項已全數抽完囉！";
                 return;
             }
 
