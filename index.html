@@ -18,113 +18,50 @@
             --border: #e5e7eb;
         }
 
-        /* 讓頁面剛好佔滿一螢幕，不出現整體捲軸，各自區域內捲動 */
         body {
             font-family: 'Segoe UI', Microsoft JhengHei, sans-serif;
             background-color: var(--bg);
             color: var(--text);
             margin: 0;
-            padding: 5px 20px; /* 減少上方 padding */
+            padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            height: 100vh;
-            overflow: hidden;
-            box-sizing: border-box;
+            min-height: 100vh;
         }
 
-        /* 標題區域 */
-        .header {
-            width: 100%;
-            text-align: center;
-            margin-bottom: 0px; /* 移除下方邊距，讓內容靠更近 */
-            margin-top: 5px; 
-            flex-shrink: 0;
-        }
-
-        #eventTitle {
-            font-size: 2.2rem;
-            font-weight: bold;
-            color: var(--primary);
-            border: none;
-            background: transparent;
-            text-align: center;
-            width: 100%;
-            outline: none;
-            border-bottom: 2px dashed transparent;
-            transition: border 0.3s;
-            padding-bottom: 0;
-        }
-
-        #eventTitle:focus {
-            border-bottom-color: var(--primary);
-        }
-
-        /* 主容器 - 3:4 比例設定 */
         .container {
             width: 100%;
-            max-width: 1600px;
+            max-width: 1200px;
             display: grid;
-            grid-template-columns: 3fr 4fr; 
+            grid-template-columns: 1fr 2fr;
             gap: 20px;
-            flex: 1; 
-            min-height: 0; 
-            padding-bottom: 10px;
-            padding-top: 5px; /* 微微調整 */
         }
 
         @media (max-width: 900px) {
             .container {
                 grid-template-columns: 1fr;
-                overflow-y: auto;
             }
-            body {
-                height: auto;
-                overflow: auto;
-            }
-        }
-
-        /* 卡片樣式 */
-        .card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            padding: 20px 25px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            height: 100%;
-            box-sizing: border-box;
-            overflow-y: auto; 
-        }
-
-        .card h2 {
-            margin: 0 0 5px 0;
-            font-size: 1.8rem;
-            color: #333;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 8px;
         }
 
         /* 音樂控制按鈕 */
         .music-control {
             position: fixed;
-            top: 15px;
+            top: 20px;
             left: 20px;
             z-index: 100;
             background: white;
-            padding: 8px 15px;
+            padding: 10px 15px;
             border-radius: 50px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             border: 2px solid var(--primary);
             transition: all 0.3s;
             font-weight: bold;
             color: var(--primary);
-            font-size: 1rem;
         }
         .music-control:hover {
             transform: scale(1.05);
@@ -142,32 +79,59 @@
             100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
         }
 
-        /* 輸入區域優化 */
-        label {
-            font-weight: 600;
-            font-size: 1.1rem;
-            margin-bottom: 5px;
-            display: block;
-            color: #4b5563;
-        }
-
-        .input-wrapper {
+        /* 卡片樣式 */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            min-height: 0;
+            gap: 15px;
+        }
+
+        /* 標題區域 */
+        .header {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 20px;
+            margin-top: 40px; /* 為了避開音樂按鈕 */
+        }
+
+        #eventTitle {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            border: none;
+            background: transparent;
+            text-align: center;
+            width: 100%;
+            outline: none;
+            border-bottom: 2px dashed transparent;
+            transition: border 0.3s;
+        }
+
+        #eventTitle:focus {
+            border-bottom-color: var(--primary);
+        }
+
+        /* 輸入區域 */
+        label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            display: block;
         }
 
         textarea {
             width: 100%;
-            height: 120px; /* 預設高度 */
-            padding: 12px;
+            height: 150px;
+            padding: 10px;
             border: 1px solid var(--border);
             border-radius: 8px;
             resize: vertical;
             box-sizing: border-box;
             font-family: inherit;
-            font-size: 1.2rem;
-            line-height: 1.6;
         }
 
         input[type="text"], input[type="number"], select {
@@ -176,7 +140,7 @@
             border: 1px solid var(--border);
             border-radius: 8px;
             box-sizing: border-box;
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
 
         .control-group {
@@ -189,7 +153,7 @@
             flex: 1;
         }
 
-        /* 按鈕優化 */
+        /* 按鈕 */
         button {
             background-color: var(--primary);
             color: white;
@@ -197,45 +161,64 @@
             padding: 12px 20px;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
             transition: background 0.2s;
             width: 100%;
         }
 
-        button:hover { background-color: var(--primary-hover); }
-        button:disabled { background-color: #ccc; cursor: not-allowed; }
-        button.btn-add { background-color: var(--secondary); padding: 11px; }
-        button.btn-add:hover { background-color: var(--secondary-hover); }
-        button.secondary { background-color: #9ca3af; }
-        button.secondary:hover { background-color: #6b7280; }
-        button.danger { background-color: #ef4444; margin-top: auto; } 
-        button.danger:hover { background-color: #dc2626; }
+        button:hover {
+            background-color: var(--primary-hover);
+        }
 
-        /* 獎項清單列表 - 修改為可調整大小 */
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        button.btn-add {
+            background-color: var(--secondary);
+        }
+        button.btn-add:hover {
+            background-color: var(--secondary-hover);
+        }
+
+        button.secondary {
+            background-color: #9ca3af;
+        }
+        
+        button.secondary:hover {
+            background-color: #6b7280;
+        }
+
+        button.danger {
+            background-color: #ef4444;
+        }
+
+        button.danger:hover {
+            background-color: #dc2626;
+        }
+
+        /* 獎項清單列表 */
         .prize-queue {
             border: 1px solid var(--border);
             border-radius: 8px;
-            padding: 8px;
+            padding: 10px;
             background: #f9fafb;
-            
-            /* 可調整大小的關鍵設定 */
-            height: 120px;       /* 預設高度 */
-            min-height: 60px;    /* 最小高度 */
-            resize: vertical;    /* 允許垂直拖曳調整 */
-            overflow: auto;      /* 必須設定這個才能出現拖曳控制點 */
+            max-height: 200px;
+            overflow-y: auto;
         }
 
         .prize-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 12px;
+            padding: 8px;
             background: white;
             border: 1px solid var(--border);
             border-radius: 6px;
-            margin-bottom: 6px;
-            font-size: 1rem;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
         }
 
         .prize-item .info {
@@ -247,61 +230,74 @@
         .prize-item .count-badge {
             background: #eef2ff;
             color: var(--primary);
-            padding: 3px 8px;
+            padding: 2px 8px;
             border-radius: 10px;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             font-weight: bold;
         }
 
         .prize-item .btn-remove {
             background: transparent;
             color: #ef4444;
-            padding: 2px 8px;
+            padding: 4px 8px;
             width: auto;
-            font-size: 1rem;
+            font-size: 0.8rem;
         }
-        .prize-item .btn-remove:hover { background: #fee2e2; }
-        .empty-queue { text-align: center; color: #9ca3af; font-size: 1rem; padding: 5px; }
+        .prize-item .btn-remove:hover {
+            background: #fee2e2;
+        }
 
-        /* 右側結果區 */
+        .empty-queue {
+            text-align: center;
+            color: #9ca3af;
+            font-size: 0.9rem;
+            padding: 10px;
+        }
+
+        /* 抽獎結果區域 */
         .result-area {
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+            min-height: 500px;
+            position: relative;
         }
 
         .current-draw-box {
             text-align: center;
-            padding: 15px;
+            padding: 20px;
             background: #eef2ff;
             border-radius: 8px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             border: 2px solid var(--primary);
-            flex-shrink: 0;
         }
 
-        .current-draw-box h3 { margin: 0 0 5px 0; color: #666; font-size: 1.2rem; }
-        .rolling-display { font-size: 2.5rem; font-weight: bold; color: var(--primary); min-height: 50px; word-break: break-word; }
+        .current-draw-box h3 {
+            margin: 0 0 10px 0;
+            color: #666;
+        }
+
+        .rolling-display {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            min-height: 60px;
+            word-break: break-word;
+        }
 
         .history-list {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            grid-auto-rows: max-content;
-            gap: 12px;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            max-height: 500px;
             overflow-y: auto;
-            flex: 1;
-            padding-right: 5px;
-            align-content: start;
         }
 
         .winner-tag {
             background: white;
             border: 1px solid var(--border);
-            padding: 12px;
-            border-radius: 8px;
+            padding: 10px;
+            border-radius: 6px;
             text-align: center;
             font-weight: 500;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             animation: slideInLeft 0.5s ease-out;
             position: relative;
             overflow: hidden;
@@ -317,35 +313,29 @@
             position: absolute;
             top: 0;
             left: 0;
-            width: 5px;
+            width: 4px;
             height: 100%;
             background: var(--primary);
         }
 
         .winner-tag span {
             display: block;
-            font-size: 1rem;
+            font-size: 0.85rem;
             color: #666;
-            margin-bottom: 5px;
-        }
-        
-        /* 中獎名單 - 名字超大 */
-        .winner-tag div {
-            font-size: 1.5rem !important; 
-            font-weight: 700 !important;
-            color: var(--text);
+            margin-bottom: 4px;
         }
 
         .stats {
-            margin-top: 8px;
-            font-size: 1rem;
+            margin-top: 10px;
+            font-size: 0.9rem;
             color: #666;
             display: flex;
             justify-content: space-between;
         }
 
-        .hidden { display: none !important; }
-        hr { margin: 12px 0 !important; }
+        .hidden {
+            display: none !important;
+        }
 
         /* ====================
            Spotlight Modal (大獎展示彈窗) 
@@ -366,16 +356,19 @@
             transition: opacity 0.3s;
         }
 
-        .spotlight-overlay.active { opacity: 1; pointer-events: auto; }
+        .spotlight-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
 
         .spotlight-content {
             background: white;
             padding: 40px;
             border-radius: 20px;
             text-align: center;
-            max-width: 90%; 
-            min-width: 400px;
-            border: 8px solid #fbbf24;
+            max-width: 80%;
+            min-width: 300px;
+            border: 8px solid #fbbf24; /* 金邊 */
             box-shadow: 0 0 50px rgba(251, 191, 36, 0.5);
             transform: scale(0.5);
             transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -392,54 +385,66 @@
             100% { transform: scale(1); opacity: 1; }
         }
 
-        .spotlight-title { font-size: 2.5rem; color: #d97706; margin-bottom: 30px; font-weight: bold; }
-        
-        /* 彈窗名字區域：橫向排列 + 自動換行 */
-        .spotlight-names { 
-            font-size: 3.5rem; 
-            font-weight: 800; 
-            color: var(--primary); 
-            line-height: 1.4;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px 30px;
+        .spotlight-title {
+            font-size: 2rem;
+            color: #d97706;
+            margin-bottom: 20px;
+            font-weight: bold;
         }
-        
-        .spotlight-names div { margin: 0; }
-        .spotlight-names.multiple { font-size: 2.5rem; }
+
+        .spotlight-names {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1.4;
+        }
+
+        .spotlight-names div {
+            margin: 10px 0;
+        }
+
+        /* 若一次多人中獎，字體自動變小一點 */
+        .spotlight-names.multiple {
+            font-size: 2rem;
+        }
 
     </style>
 </head>
 <body>
 
+    <!-- 背景音樂 -->
+    <!-- 使用 Royalty Free 音樂範例 (Happy Ukulele) -->
     <audio id="bgMusic" loop>
         <source src="https://www.bensound.com/bensound-music/bensound-ukulele.mp3" type="audio/mp3">
+        <!-- 備用來源，如果上面的失效 -->
+        您的瀏覽器不支援音樂播放。
     </audio>
 
     <div class="music-control" onclick="toggleMusic()" id="btnMusic">
         <span>🔇</span> 播放音樂
     </div>
 
-    <!-- Spotlight Modal -->
+    <!-- 大獎展示彈窗 (Spotlight Modal) -->
     <div id="spotlightOverlay" class="spotlight-overlay">
         <div class="spotlight-content">
             <div class="spotlight-title" id="spotlightPrizeName">🎊 恭喜得獎 🎊</div>
-            <div class="spotlight-names" id="spotlightNameList"></div>
+            <div class="spotlight-names" id="spotlightNameList">
+                <!-- 名字會出現在這 -->
+            </div>
         </div>
     </div>
 
     <div class="header">
-        <input type="text" id="eventTitle" value="🎉 2025 聖誕活動抽獎 🎉" placeholder="點擊編輯活動名稱">
+        <input type="text" id="eventTitle" value="🎉 公司年度幸運大抽獎 🎉" placeholder="點擊編輯活動名稱">
     </div>
 
     <div class="container">
-        <!-- 左側設定區 (佔 3) -->
+        <!-- 左側設定區 -->
         <div class="card">
             <h2>⚙️ 抽獎設定</h2>
             
             <!-- 名單輸入 -->
-            <div class="input-wrapper" style="flex: 2;">
+            <div>
                 <label for="names">1. 參與名單 (一行一個名字)</label>
                 <textarea id="names" placeholder="張三&#10;李四&#10;王五&#10;...">
 張三
@@ -463,7 +468,7 @@
                 </div>
             </div>
 
-            <hr>
+            <hr style="width:100%; border:0; border-top:1px solid #eee; margin: 10px 0;">
 
             <!-- 獎項設定 -->
             <div>
@@ -473,27 +478,27 @@
                         <input type="text" id="inputPrizeName" placeholder="獎項名稱 (例: 三獎)">
                     </div>
                     <div style="flex: 1;">
-                        <input type="number" id="inputPrizeCount" value="1" min="1" placeholder="數">
+                        <input type="number" id="inputPrizeCount" value="1" min="1" placeholder="數量">
                     </div>
-                    <div style="flex: 1.2;">
-                        <button class="btn-add" onclick="addPrizeToList()">加入</button>
+                    <div style="flex: 1;">
+                        <button class="btn-add" onclick="addPrizeToList()">加入清單</button>
                     </div>
                 </div>
             </div>
 
-            <!-- 獎項清單顯示 (可調整大小) -->
+            <!-- 獎項清單顯示 -->
             <div class="prize-queue" id="prizeQueueContainer">
                 <div class="empty-queue">目前沒有待抽獎項，請上方新增</div>
             </div>
 
-            <hr>
+            <hr style="width:100%; border:0; border-top:1px solid #eee; margin: 10px 0;">
 
             <!-- 抽獎控制 -->
             <div>
                 <label for="drawMode">3. 抽獎方式</label>
                 <select id="drawMode">
                     <option value="batch">一次抽出該獎項所有得主</option>
-                    <option value="single">一個一個慢慢抽</option>
+                    <option value="single">一個一個慢慢抽 </option>
                 </select>
             </div>
 
@@ -502,21 +507,21 @@
                 <button class="secondary hidden" onclick="drawNextSingle()" id="btnNext">抽下一位</button>
             </div>
             
-            <button class="danger" onclick="resetData()">重置所有數據</button>
+            <button class="danger" onclick="resetData()" style="margin-top: 20px;">重置所有數據</button>
         </div>
 
-        <!-- 右側結果區 (佔 4) -->
+        <!-- 右側結果區 -->
         <div class="card result-area">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
                 <h2>🏆 得獎名單</h2>
-                <button onclick="exportResult()" class="secondary" style="width:auto; padding: 8px 15px; font-size:1rem;">複製名單</button>
+                <button onclick="exportResult()" class="secondary" style="width:auto; padding: 5px 10px; font-size:0.8rem;">複製名單</button>
             </div>
             
-            <!-- 目前正在抽的展示區 -->
+            <!-- 目前正在抽的展示區 (僅用於單抽模式滾動時) -->
             <div id="currentDrawArea" class="current-draw-box hidden">
                 <h3 id="currentPrizeLabel">正在抽出...</h3>
                 <div id="bigWinnerDisplay" class="rolling-display">???</div>
-                <div id="remainingInBatch" style="font-size:1rem; color:#888; margin-top:5px;"></div>
+                <div id="remainingInBatch" style="font-size:0.8rem; color:#888; margin-top:5px;"></div>
             </div>
 
             <!-- 歷史紀錄 -->
@@ -530,9 +535,12 @@
         // ================= 全局變數 =================
         let drawnNames = new Set();
         let prizeQueue = [];
+        
         let singleModeQueue = [];
         let currentSinglePrize = "";
-        let isDrawing = false;
+        let isDrawing = false; // 鎖定狀態
+
+        // 音樂變數
         const bgAudio = document.getElementById('bgMusic');
         let isMusicPlaying = false;
 
@@ -542,6 +550,7 @@
             if (e.key === 'Enter') addPrizeToList();
         });
 
+        // ================= 音樂功能 =================
         function toggleMusic() {
             const btn = document.getElementById('btnMusic');
             if (isMusicPlaying) {
@@ -550,7 +559,8 @@
                 btn.classList.remove('playing');
                 isMusicPlaying = false;
             } else {
-                bgAudio.volume = 0.5;
+                // 用戶互動後才能播放
+                bgAudio.volume = 0.5; // 音量適中
                 bgAudio.play().then(() => {
                     btn.innerHTML = '<span>🎵</span> 暫停音樂';
                     btn.classList.add('playing');
@@ -562,6 +572,7 @@
             }
         }
 
+        // ================= 核心功能：名單統計 =================
         function getPool() {
             const text = document.getElementById('names').value;
             const allNames = text.split('\n').map(n => n.trim()).filter(n => n);
@@ -578,6 +589,7 @@
             document.getElementById('poolCount').innerText = `剩餘人數: ${remaining}`;
         }
 
+        // ================= 功能：獎項清單管理 =================
         function addPrizeToList() {
             const nameInput = document.getElementById('inputPrizeName');
             const countInput = document.getElementById('inputPrizeCount');
@@ -624,7 +636,9 @@
             document.getElementById('btnStart').innerText = `開始抽：${nextPrize.name} (${nextPrize.count}人)`;
         }
 
+        // ================= 核心功能：抽獎邏輯 =================
         function startDraw() {
+            // 1. 決定要抽什麼
             let currentConfig = null;
             let isFromQueue = false;
 
@@ -641,13 +655,16 @@
                 }
             }
 
+            // 2. 檢查人數
             const pool = getPool();
             if (pool.length === 0) return alert("所有人皆已中獎！");
             if (pool.length < currentConfig.count) return alert(`人數不足，無法抽出 ${currentConfig.count} 人`);
 
+            // 3. 鎖定
             document.getElementById('btnStart').classList.add('hidden');
             document.getElementById('names').disabled = true;
 
+            // 4. 洗牌抽獎
             const shuffled = [...pool];
             for (let i = shuffled.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -655,19 +672,25 @@
             }
             const winners = shuffled.slice(0, currentConfig.count);
 
+            // 5. 執行
             const mode = document.getElementById('drawMode').value;
             
             if (mode === 'batch') {
+                // --- 批量模式 (直接展示 Spotlight) ---
                 if(isFromQueue) {
                     prizeQueue.shift(); 
                     renderPrizeQueue();
                 }
+                // 呼叫彈窗展示動畫
                 showSpotlight(winners, currentConfig.name, () => {
+                    // 動畫結束後的回調：加入清單
                     processBatchWinners(winners, currentConfig.name);
                     document.getElementById('btnStart').classList.remove('hidden');
                     document.getElementById('names').disabled = false;
                 });
+                
             } else {
+                // --- 單抽模式 ---
                 singleModeQueue = winners;
                 currentSinglePrize = currentConfig.name;
                 
@@ -684,29 +707,40 @@
             }
         }
 
+        // ================= Spotlight 彈窗動畫邏輯 =================
         function showSpotlight(winners, prizeName, callback) {
             const overlay = document.getElementById('spotlightOverlay');
             const titleEl = document.getElementById('spotlightPrizeName');
             const namesEl = document.getElementById('spotlightNameList');
 
+            // 設定內容
             titleEl.innerText = `🎊 ${prizeName} 得主 🎊`;
             namesEl.innerHTML = winners.map(name => `<div>${name}</div>`).join('');
             
+            // 調整字體大小 (如果不只一人，字變小)
             if (winners.length > 1) {
                 namesEl.classList.add('multiple');
             } else {
                 namesEl.classList.remove('multiple');
             }
 
+            // 顯示彈窗 (觸發 CSS 動畫)
             overlay.classList.add('active');
 
+            // 播放歡呼音效? (這裡僅依賴背景音樂，若需特效音可加在這邊)
+
+            // 停留 2.5 秒後關閉並執行 callback
             setTimeout(() => {
                 overlay.classList.remove('active');
+                // 等待淡出動畫結束再執行 callback
                 setTimeout(() => {
                     if (callback) callback();
                 }, 300);
             }, 2500);
         }
+
+
+        // ================= 批量 & 單抽處理 =================
 
         function processBatchWinners(winners, prizeName) {
             winners.forEach(winner => {
@@ -731,6 +765,7 @@
             const winner = singleModeQueue.shift();
             const display = document.getElementById('bigWinnerDisplay');
 
+            // 滾動特效
             let count = 0;
             const maxCount = 15;
             const speed = 50;
@@ -743,10 +778,15 @@
                 count++;
                 if (count >= maxCount) {
                     clearInterval(interval);
+                    
+                    // 滾動結束，顯示真正得主在小框框 (暫時)
                     display.innerText = winner;
 
+                    // === 這裡插入 Spotlight 彈窗 ===
+                    // 延遲一點點讓使用者看到滾動停下
                     setTimeout(() => {
                         showSpotlight([winner], currentSinglePrize, () => {
+                            // 彈窗結束後，加入下方清單
                             addWinnerCard(winner, currentSinglePrize);
                             drawnNames.add(winner);
                             updateStats();
@@ -776,13 +816,14 @@
             renderPrizeQueue();
         }
 
+        // ================= UI 輔助 =================
         function addWinnerCard(name, prize) {
             const container = document.getElementById('winnerList');
             const card = document.createElement('div');
             card.className = 'winner-tag';
             card.innerHTML = `
                 <span>${prize}</span>
-                <div>${name}</div>
+                <div style="font-size: 1.2rem; font-weight: bold; color: var(--primary);">${name}</div>
             `;
             container.insertBefore(card, container.firstChild);
         }
@@ -818,6 +859,7 @@
             }());
         }
 
+        // Init
         updateStats();
         renderPrizeQueue();
     </script>
